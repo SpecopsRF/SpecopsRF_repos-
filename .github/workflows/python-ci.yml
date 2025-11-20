@@ -39,7 +39,7 @@ jobs:
     - name: Run security analysis (bandit)
       run: |
         source venv/bin/activate
-        bandit -r .
+        bandit -r . -x venv
 
     # 6. Запуск юнит-тестов
     - name: Run tests
