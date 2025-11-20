@@ -1,0 +1,64 @@
+name: Python CI/CD with SCA
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Клон
+    - uses: actions/checkout@v3
+
+    # 2. Python
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.13
+
+    # 3. Зависимости
+    - name: Install dependencies
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install flake8 bandit
+
+    # 4. Анализ кода 
+    - name: Run static code analysis (flake8)
+      run: |
+        source venv/bin/activate
+        flake8 .
+
+    # 5. Анализ bandit
+    - name: Run security analysis (bandit)
+      run: |
+        source venv/bin/activate
+        bandit -r .
+
+    # 6. Запуск юнит-тестов
+    - name: Run tests
+      run: |
+        source venv/bin/activate
+        python -m unittest discover
+
+    # 7. Пакуем
+    - name: Package application
+      run: |
+        source venv/bin/activate
+        python setup.py sdist || echo "No setup.py found, skipping packaging"
+
+    # 8. Имитации деплоя
+    - name: Deploy to branch
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git checkout -b deployment
+        git add .
+        git commit -m "Deploy from GitHub Actions"
+        git push -f origin deployment
