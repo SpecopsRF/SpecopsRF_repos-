@@ -26,7 +26,7 @@
 
 **ТЗ №5** 
 - Настроить мониторинг, для этого необходимо сделать следующее:
-      - На хосте развернуть в docker Prometheus + Node Exporter
-      - Добавить Grafana
+    - На хосте развернуть в docker Prometheus + Node Exporter
+    - Добавить Grafana
       - Добавить AltertManager
 P.s. для этой лабы отправлю файл c названием DevSecOps Monitoring
