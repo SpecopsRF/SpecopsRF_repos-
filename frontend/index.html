@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker App</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .user-form { margin: 20px 0; padding: 20px; border: 1px solid #ddd; }
+        input { margin: 5px; padding: 8px; }
+        button { padding: 8px 15px; background: #007bff; color: white; border: none; cursor: pointer; }
+        .users-list { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐳 Мое Docker приложение</h1>
+        <p>Это полноценное веб-приложение, работающее в контейнерах Docker!</p>
+        
+        <div class="user-form">
+            <h3>Добавить пользователя</h3>
+            <input type="text" id="name" placeholder="Имя">
+            <input type="email" id="email" placeholder="Email">
+            <button onclick="addUser()">Добавить</button>
+        </div>
+        
+        <div class="users-list">
+            <h3>Список пользователей</h3>
+            <button onclick="loadUsers()">Обновить список</button>
+            <div id="users"></div>
+        </div>
+    </div>
+
+    <script>
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/users');
+                const users = await response.json();
+                document.getElementById('users').innerHTML = 
+                    users.map(user => `
+                        <div style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>${user.name}</strong> - ${user.email}
+                        </div>
+                    `).join('');
+            } catch (error) {
+                console.error('Ошибка:', error);
+            }
+        }
+
+        async function addUser() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            
+            try {
+                await fetch('/api/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email })
+                });
+                
+                document.getElementById('name').value = '';
+                document.getElementById('email').value = '';
+                loadUsers();
+            } catch (error) {
+                console.error('Ошибка:', error);
+            }
+        }
+
+        // Загружаем пользователей при загрузке страницы
+        loadUsers();
+    </script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # PostgreSQL база данных
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+
+  # Backend приложение
+  backend:
+    build: ./backend
+    environment:
+      DB_HOST: db
+      DB_NAME: mydb
+      DB_USER: user
+      DB_PASSWORD: password
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  # Frontend приложение
+  frontend:
+    build: ./frontend
+    networks:
+      - app-network
+
+  # Nginx прокси
+  nginx:
+    build: ./nginx
+    ports:
+      - "8080:80"    # Используем порт 8080 чтобы избежать конфликтов
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - app-network
+
+# Сеть для связи между контейнерами
+networks:
+  app-network:
+    driver: bridge
+
+# Том для хранения данных БД
+volumes:
+  postgres_data:
